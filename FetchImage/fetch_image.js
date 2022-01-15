@@ -21,7 +21,7 @@ async function downloadImage(objId, ra, dec) {
 
 async function downloadImages(df, step) {
     var nbProcessed = 0
-    var size = df.toRows().length
+    var size = df.count()
     while ( nbProcessed < size ) {
         let dfToProcess = df.skip(nbProcessed).take(step)
         let tabPromise = []
@@ -32,7 +32,7 @@ async function downloadImages(df, step) {
             tabPromise.push(downloadImage(objId, ra, dec))
         })
         await Promise.all(tabPromise)
-        nbProcessed += step
+        nbProcessed += dfToProcess.count()
         console.log(util.format("%d/%d", nbProcessed, size))
     }
 }
