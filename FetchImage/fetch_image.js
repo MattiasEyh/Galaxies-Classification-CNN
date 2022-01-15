@@ -37,7 +37,6 @@ async function downloadImages(df, step) {
     }
 }
 
-
 var toSkip = 0
 var step = 300
 var df = dataForge.readFileSync("../Datas/dataWithPreProcess.csv")
@@ -45,4 +44,8 @@ var df = dataForge.readFileSync("../Datas/dataWithPreProcess.csv")
     .subset(["OBJID", "RA", "DEC"])
     .skip(toSkip)
 
+
+if (!fs.existsSync(BASE_FOLDER)){
+    fs.mkdirSync(BASE_FOLDER);
+}
 downloadImages(df, step)
