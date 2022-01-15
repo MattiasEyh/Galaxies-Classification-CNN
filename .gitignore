@@ -1,2 +1,5 @@
 .idea/
 .DS_Store
+/Datas/Images/*.[png, jpeg, jpg]
+node_modules
+package-lock.json
