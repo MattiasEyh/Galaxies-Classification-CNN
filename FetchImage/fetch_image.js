@@ -2,17 +2,70 @@ const dataForge = require('data-forge-fs');
 const fs = require('fs');
 const client = require('https');
 const util = require('util');
+const yargs = require('yargs');
 
+const argv = yargs
+    .options({
+        'out': {
+            alias: 'o',
+            description: 'Path to put images',
+            type: 'string',
+            normalize: true
+        },
+        'width': {
+            alias: 'w',
+            description: 'Width the images will have',
+            type: 'number',
+            default: 512
+        },
+        'height': {
+            alias: 'he',
+            description: 'Height the images will have',
+            type: 'number',
+            default: 512
+        },
+        'imageOption': {
+            alias: 'io',
+            description: 'The option to use when downloading images',
+            choices: ['G', 'O', 'I', 'B']
+        },
+        'step': {
+            alias: 'st',
+            description: 'Number of images to download simultaneously',
+            type: 'number',
+            default: 200
+        },
+        'skip': {
+            alias: 'sk',
+            description: 'Number of images to skip on download',
+            type: 'number',
+            default: 0
+        },
+        'skipArray': {
+            alias: 'skA',
+            description: 'List of images to skip when downloading',
+            type: 'array'
+        }
+    })
+    .demandOption('out', 'Please provide a path to put downloaded images')
+    .check((argv, options) => {
+        if ( fs.existsSync(argv.out) && fs.lstatSync(argv.out).isDirectory() ) {
+            return true            
+        }
+        throw new Error("The path must be an existing directory")
+    })
+  .alias('help', 'h').argv;
+
+var WIDTH = argv.width
+var HEIGHT = argv.height
+var DIRECTORY = argv.out
 var BASE_URL = "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg"
-var WIDTH = 512
-var HEIGHT = 512
-var BASE_FOLDER = "../Datas/Images/"
 
 async function downloadImage(objId, ra, dec) {
     return new Promise((resolve) => {
         url = util.format("%s?ra=%s&dec=%s&width=%s&height=%s", BASE_URL, ra, dec, WIDTH, HEIGHT)
         client.get(url, (res) => {
-            let file = fs.createWriteStream(BASE_FOLDER + objId + ".jpeg")
+            let file = fs.createWriteStream(DIRECTORY + objId + ".jpeg")
             res.pipe(file)
             file.on("close", () => { resolve() })
         }).on("error", (e) => console.log(e))
@@ -33,19 +86,16 @@ async function downloadImages(df, step) {
         })
         await Promise.all(tabPromise)
         nbProcessed += dfToProcess.count()
-        console.log(util.format("%d/%d", nbProcessed, size))
+        console.log("%d/%d", nbProcessed, size)
     }
 }
 
-var toSkip = 0
-var step = 300
+let toSkip = argv.skip
+var step = argv.step
 var df = dataForge.readFileSync("../Datas/dataWithPreProcess.csv")
     .parseCSV()
     .subset(["OBJID", "RA", "DEC"])
     .skip(toSkip)
 
-
-if (!fs.existsSync(BASE_FOLDER)){
-    fs.mkdirSync(BASE_FOLDER);
-}
+console.log("Downloading images...")
 downloadImages(df, step)
