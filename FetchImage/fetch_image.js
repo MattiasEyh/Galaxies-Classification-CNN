@@ -40,11 +40,6 @@ const argv = yargs
             description: 'Number of images to skip on download',
             type: 'number',
             default: 0
-        },
-        'skipArray': {
-            alias: 'skA',
-            description: 'List of images to skip when downloading',
-            type: 'array'
         }
     })
     .demandOption('out', 'Please provide a path to put downloaded images')
