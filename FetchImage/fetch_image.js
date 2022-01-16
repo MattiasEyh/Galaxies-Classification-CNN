@@ -51,14 +51,15 @@ const argv = yargs
     })
   .alias('help', 'h').argv;
 
+var BASE_URL = "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg"
+var DIRECTORY = argv.out
 var WIDTH = argv.width
 var HEIGHT = argv.height
-var DIRECTORY = argv.out
-var BASE_URL = "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg"
+var OPTIONS = argv.imageOption.reduce((r, c) => r + c)
 
 async function downloadImage(objId, ra, dec) {
     return new Promise((resolve) => {
-        url = util.format("%s?ra=%s&dec=%s&width=%s&height=%s", BASE_URL, ra, dec, WIDTH, HEIGHT)
+        url = util.format("%s?ra=%s&dec=%s&width=%s&height=%s&opt=%s", BASE_URL, ra, dec, WIDTH, HEIGHT, OPTIONS)
         client.get(url, (res) => {
             let file = fs.createWriteStream(DIRECTORY + objId + ".jpeg")
             res.pipe(file)
