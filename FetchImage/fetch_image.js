@@ -1,6 +1,6 @@
 const dataForge = require('data-forge-fs');
 const fs = require('fs');
-const client = require('https');
+const client = require('http');
 const path = require('path');
 const util = require('util');
 const yargs = require('yargs');
@@ -52,7 +52,7 @@ const argv = yargs
     })
   .alias('help', 'h').argv;
 
-var BASE_URL = "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg"
+var BASE_URL = "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg"
 var DIRECTORY = argv.out
 var WIDTH = argv.width
 var HEIGHT = argv.height
