@@ -59,9 +59,6 @@ var HEIGHT = argv.height
 var OPTIONS = argv.imageOption || ""
 if ( Array.isArray(OPTIONS) ) OPTIONS = OPTIONS.reduce((r, c) => r + c)
 
-
-console.log(OPTIONS)
-
 async function downloadImage(objId, ra, dec, type) {
     return new Promise((resolve) => {
         imageDirectory = DIRECTORY + path.sep + type + path.sep;
