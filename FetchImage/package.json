@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "data-forge-fs": "^0.0.9",
+    "yargs": "^17.3.1"
+  }
+}
