@@ -1,6 +1,7 @@
 const dataForge = require('data-forge-fs');
 const fs = require('fs');
 const client = require('https');
+const path = require('path');
 const util = require('util');
 const yargs = require('yargs');
 
@@ -55,13 +56,21 @@ var BASE_URL = "https://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg"
 var DIRECTORY = argv.out
 var WIDTH = argv.width
 var HEIGHT = argv.height
-var OPTIONS = argv.imageOption.reduce((r, c) => r + c)
+var OPTIONS = argv.imageOption || ""
+if ( Array.isArray(OPTIONS) ) OPTIONS = OPTIONS.reduce((r, c) => r + c)
 
-async function downloadImage(objId, ra, dec) {
+
+console.log(OPTIONS)
+
+async function downloadImage(objId, ra, dec, type) {
     return new Promise((resolve) => {
+        imageDirectory = DIRECTORY + path.sep + type + path.sep;
+        if (!fs.existsSync(imageDirectory)){
+            fs.mkdirSync(imageDirectory);
+        }
         url = util.format("%s?ra=%s&dec=%s&width=%s&height=%s&opt=%s", BASE_URL, ra, dec, WIDTH, HEIGHT, OPTIONS)
         client.get(url, (res) => {
-            let file = fs.createWriteStream(DIRECTORY + objId + ".jpeg")
+            let file = fs.createWriteStream(imageDirectory + objId + ".jpeg")
             res.pipe(file)
             file.on("close", () => { resolve() })
         }).on("error", (e) => console.log(e))
@@ -78,7 +87,8 @@ async function downloadImages(df, step) {
             let objId = row["OBJID"]
             let ra = row["RA"]
             let dec = row["DEC"]
-            tabPromise.push(downloadImage(objId, ra, dec))
+            let type = row["TYPE"]
+            tabPromise.push(downloadImage(objId, ra, dec, type))
         })
         await Promise.all(tabPromise)
         nbProcessed += dfToProcess.count()
@@ -90,7 +100,6 @@ let toSkip = argv.skip
 var step = argv.step
 var df = dataForge.readFileSync("../Datas/dataWithPreProcess.csv")
     .parseCSV()
-    .subset(["OBJID", "RA", "DEC"])
     .skip(toSkip)
 
 console.log("Downloading images...")
