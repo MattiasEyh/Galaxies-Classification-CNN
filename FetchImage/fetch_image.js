@@ -59,13 +59,15 @@ var HEIGHT = argv.height
 var OPTIONS = argv.imageOption || ""
 if ( Array.isArray(OPTIONS) ) OPTIONS = OPTIONS.reduce((r, c) => r + c)
 
-async function downloadImage(objId, ra, dec, type) {
+async function downloadImage(row) {
     return new Promise((resolve) => {
-        imageDirectory = DIRECTORY + path.sep + type + path.sep;
-        if (!fs.existsSync(imageDirectory)){
-            fs.mkdirSync(imageDirectory);
-        }
-        url = util.format("%s?ra=%s&dec=%s&width=%s&height=%s&opt=%s", BASE_URL, ra, dec, WIDTH, HEIGHT, OPTIONS)
+        var ra = row["RA"]
+        var dec = row["DEC"]
+        var objId = row["OBJID"]
+        var type = row["TYPE"]
+        var imageDirectory = DIRECTORY + path.sep + type + path.sep;
+        fs.existsSync(imageDirectory) || fs.mkdirSync(imageDirectory)
+        let url = util.format("%s?ra=%s&dec=%s&width=%s&height=%s&opt=%s", BASE_URL, ra, dec, WIDTH, HEIGHT, OPTIONS)
         client.get(url, (res) => {
             let file = fs.createWriteStream(imageDirectory + objId + ".jpeg")
             res.pipe(file)
@@ -81,11 +83,7 @@ async function downloadImages(df, step) {
         let dfToProcess = df.skip(nbProcessed).take(step)
         let tabPromise = []
         dfToProcess.forEach( row => {
-            let objId = row["OBJID"]
-            let ra = row["RA"]
-            let dec = row["DEC"]
-            let type = row["TYPE"]
-            tabPromise.push(downloadImage(objId, ra, dec, type))
+            tabPromise.push(downloadImage(row))
         })
         await Promise.all(tabPromise)
         nbProcessed += dfToProcess.count()
