@@ -34,7 +34,7 @@ const argv = yargs
             alias: 'st',
             description: 'Number of images to download simultaneously',
             type: 'number',
-            default: 200
+            default: 30
         },
         'skip': {
             alias: 'sk',
