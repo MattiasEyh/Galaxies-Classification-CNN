@@ -13,17 +13,11 @@ const argv = yargs
             type: 'string',
             normalize: true
         },
-        'width': {
-            alias: 'w',
-            description: 'Width the images will have',
+        'scale': {
+            alias: 'sc',
+            description: 'Scale of the image (between 0 and 1)',
             type: 'number',
-            default: 512
-        },
-        'height': {
-            alias: 'he',
-            description: 'Height the images will have',
-            type: 'number',
-            default: 512
+            default: 0.1
         },
         'imageOption': {
             alias: 'io',
@@ -34,7 +28,7 @@ const argv = yargs
             alias: 'st',
             description: 'Number of images to download simultaneously',
             type: 'number',
-            default: 200
+            default: 30
         },
         'skip': {
             alias: 'sk',
@@ -54,8 +48,7 @@ const argv = yargs
 
 var BASE_URL = "http://skyserver.sdss.org/dr16/SkyServerWS/ImgCutout/getjpeg"
 var DIRECTORY = argv.out
-var WIDTH = argv.width
-var HEIGHT = argv.height
+var SCALE = argv.scale
 var OPTIONS = argv.imageOption || ""
 if ( Array.isArray(OPTIONS) ) OPTIONS = OPTIONS.reduce((r, c) => r + c)
 
@@ -67,7 +60,7 @@ async function downloadImage(row) {
         var type = row["TYPE"]
         var imageDirectory = DIRECTORY + path.sep + type + path.sep;
         fs.existsSync(imageDirectory) || fs.mkdirSync(imageDirectory)
-        let url = util.format("%s?ra=%s&dec=%s&width=%s&height=%s&opt=%s", BASE_URL, ra, dec, WIDTH, HEIGHT, OPTIONS)
+        let url = util.format("%s?ra=%s&dec=%s&scale=%d&opt=%s", BASE_URL, ra, dec, SCALE, OPTIONS)
         client.get(url, (res) => {
             let file = fs.createWriteStream(imageDirectory + objId + ".jpeg")
             res.pipe(file)
