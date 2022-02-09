@@ -13,18 +13,6 @@ const argv = yargs
             type: 'string',
             normalize: true
         },
-        'width': {
-            alias: 'w',
-            description: 'Width the images will have',
-            type: 'number',
-            default: 512
-        },
-        'height': {
-            alias: 'he',
-            description: 'Height the images will have',
-            type: 'number',
-            default: 512
-        },
         'imageOption': {
             alias: 'io',
             description: 'The option to use when downloading images',
@@ -67,7 +55,7 @@ async function downloadImage(row) {
         var type = row["TYPE"]
         var imageDirectory = DIRECTORY + path.sep + type + path.sep;
         fs.existsSync(imageDirectory) || fs.mkdirSync(imageDirectory)
-        let url = util.format("%s?ra=%s&dec=%s&width=%s&height=%s&opt=%s", BASE_URL, ra, dec, WIDTH, HEIGHT, OPTIONS)
+        let url = util.format("%s?ra=%s&dec=%s&opt=%s", BASE_URL, ra, dec, OPTIONS)
         client.get(url, (res) => {
             let file = fs.createWriteStream(imageDirectory + objId + ".jpeg")
             res.pipe(file)
