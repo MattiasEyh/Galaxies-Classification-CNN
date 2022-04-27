@@ -11,7 +11,7 @@ const argv = yargs
             alias: 'o',
             description: 'Path to put images',
             type: 'string',
-            normalize: true
+            normalize: true,
         },
         'scale': {
             alias: 'sc',
@@ -35,11 +35,19 @@ const argv = yargs
             description: 'Number of images to skip on download',
             type: 'number',
             default: 0
+        },
+        'path': {
+            alias: 'p',
+            description: 'Path to the csv file',
+            type: 'string',
+            require: true,
         }
     })
-    .demandOption('out', 'Please provide a path to put downloaded images')
+    .demandOption('o', 'Please provide a path to put downloaded images')
+    .demandOption('p', 'Please provide a path to your csv')
     .check((argv, options) => {
-        if ( fs.existsSync(argv.out) && fs.lstatSync(argv.out).isDirectory() ) {
+        if ( fs.existsSync(argv.out) && fs.existsSync(argv.path) && 
+            fs.lstatSync(argv.out).isDirectory() && fs.lstatSync(argv.path).isFile() ) {
             return true            
         }
         throw new Error("The path must be an existing directory")
@@ -86,7 +94,7 @@ async function downloadImages(df, step) {
 
 let toSkip = argv.skip
 var step = argv.step
-var df = dataForge.readFileSync("../Datas/dataWithPreProcess.csv")
+var df = dataForge.readFileSync(argv.path)
     .parseCSV()
     .skip(toSkip)
 
