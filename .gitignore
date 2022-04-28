@@ -1,7 +1,7 @@
 .idea/
 .DS_Store
 Pre-processing/.ipynb_checkpoints
-/Datas/Images/*
+Datas
 node_modules
 package-lock.json
 CNN/logs
